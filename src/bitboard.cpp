@@ -34,8 +34,8 @@ Bitboard BetweenBB[SQUARE_NB][SQUARE_NB];
 Bitboard PseudoAttacks[PIECE_TYPE_NB][SQUARE_NB];
 Bitboard PawnAttacks[COLOR_NB][SQUARE_NB];
 
-Magic RookMagics[SQUARE_NB];
-Magic BishopMagics[SQUARE_NB];
+// Interleaved rook and bishop magics, rooks go first
+Magic CombinedMagics[SQUARE_NB * 2];
 
 namespace {
 
@@ -82,8 +82,8 @@ void Bitboards::init() {
         for (Square s2 = SQ_A1; s2 <= SQ_H8; ++s2)
             SquareDistance[s1][s2] = std::max(distance<File>(s1, s2), distance<Rank>(s1, s2));
 
-    init_magics(ROOK, RookTable, RookMagics);
-    init_magics(BISHOP, BishopTable, BishopMagics);
+    init_magics(ROOK, RookTable, CombinedMagics);
+    init_magics(BISHOP, BishopTable, CombinedMagics + 1);
 
     for (Square s1 = SQ_A1; s1 <= SQ_H8; ++s1)
     {
@@ -161,13 +161,13 @@ void init_magics(PieceType pt, Bitboard table[], Magic magics[]) {
         // all the attacks for each possible subset of the mask and so is 2 power
         // the number of 1s of the mask. Hence we deduce the size of the shift to
         // apply to the 64 or 32 bits word to get the index.
-        Magic& m = magics[s];
+        Magic& m = magics[s * 2];
         m.mask   = sliding_attack(pt, s, 0) & ~edges;
         m.shift  = (Is64Bit ? 64 : 32) - popcount(m.mask);
 
         // Set the offset for the attacks table of the square. We have individual
         // table sizes for each square with "Fancy Magic Bitboards".
-        m.attacks = s == SQ_A1 ? table : magics[s - 1].attacks + size;
+        m.attacks = s == SQ_A1 ? table : magics[(s - 1) * 2].attacks + size;
 
         // Use Carry-Rippler trick to enumerate all subsets of masks[s] and
         // store the corresponding sliding attack bitboard in reference[].

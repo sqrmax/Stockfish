@@ -39,7 +39,7 @@
 
 namespace Stockfish {
 
-enum Square : int;
+enum Square : FastEnumInt;
 
 class Engine {
    public:

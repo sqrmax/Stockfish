@@ -33,7 +33,7 @@ namespace Stockfish {
 class Position;
 class Move;
 class Score;
-enum Square : int;
+enum Square : FastEnumInt;
 using Value = int;
 
 class UCIEngine {
