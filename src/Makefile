@@ -657,6 +657,10 @@ ifeq ($(optimize),yes)
 	CXXFLAGS += -O3 -funroll-loops
 
 	ifeq ($(comp),gcc)
+		CXXFLAGS += -fipa-pta
+	endif
+
+	ifeq ($(comp),gcc)
 		ifeq ($(OS), Android)
 			CXXFLAGS += -fno-gcse -mthumb -march=armv7-a -mfloat-abi=softfp
 		endif
